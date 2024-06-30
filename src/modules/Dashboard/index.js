@@ -1,47 +1,55 @@
 // import React from 'react';
 import Input from "../../components/Input";
-import Avatar from "../../assets/avatar.png";
+import Girl from  "../../assets/girl.avif";
+import cool from  "../../assets/cool.avif";
+import Office from "../../assets/office.avif";
+import Mafia from "../../assets/mafia.avif";
+import one from "../../assets/1.webp";
+import two from "../../assets/2.webp";
+import three from "../../assets/3.webp";
+
 
 const Dashboard = () => {
   const contact = [
     {
       name: "kt",
-      img: Avatar,
+      img: Girl,
       status: "Available",
     },
     {
       name: "bansal",
-      img: Avatar,
+      img: cool,
       status: "Sleeping",
     },
     {
       name: "tyagi",
-      img: Avatar,
+      img: Office,
       status: "Thinking...",
     },
     {
       name: "pt",
-      img: Avatar,
+      img: one,
       status: "Working",
     },
     {
       name: "kt",
-      img: Avatar,
+      img: two,
       status: "Available",
     },
     {
       name: "kt",
-      img: Avatar,
+      img: Mafia,
       status: "Available",
     }
   ];
-
+  
+  
   return (
     <div className="w-screen flex">
       <div className="w-[25%] h-screen bg-secondary">
         <div className="flex items-center my-8 mx-10">
           <div className="border border-primary p-[6px] rounded-full">
-            <img src={Avatar} width={75} height={75} />{" "}
+            <img src={Mafia} alt="_blank" width={75} height={75} />{" "}
           </div>
           <div className="ml-8">
             <h3 className="text-2xl">Udit Tyagi</h3>
@@ -57,7 +65,7 @@ const Dashboard = () => {
                 <div className="flex items-center py-2 border-b border-b-gray-400">
                     <div className="cursor-pointer flex">
                        <div>
-                         <img src={img} width={50} height={50} />{" "}
+                         <img src={img} className="rounded-full" alt="_blank" width={50} height={50} />{" "}
                        </div>
                        <div className="ml-6">
                           <h3 className="text-lg font-semibold">{name}</h3>
@@ -72,9 +80,9 @@ const Dashboard = () => {
       </div>
       <div className="w-[50%] bg-white h-screen flex flex-col items-center">
         <div className="w-[75%] bg-secondary h-[80px] my-14 rounded-full flex items-center px-8">
-        <div> <img src={Avatar} width={50} height={50} /> </div>
+        <div> <img src={three} className="rounded-full" alt="_blank" width={50} height={50} /> </div>
         <div className="ml-6 mr-auto">
-            <h3 className="text-lg font-semibold">Kanishka</h3>
+            <h3 className="text-lg font-semibold">Amber</h3>
             <p className="text-sm font-light text-gray-500">Online</p>
         </div>
         <div className="cursor-pointer">
