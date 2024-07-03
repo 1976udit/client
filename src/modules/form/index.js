@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input"
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 
 
 const Form = ({
@@ -17,6 +17,31 @@ const Form = ({
 
     const navigate = useNavigate()
 
+    // this is how we do the work of postman connecting to the backend or server
+    const handleSubmit = async (e) => {
+        console.log(data)
+        e.preventDefault()
+        const res =await fetch(`http://localhost:5000/api/${isSignedIn? "login" : "register"}` , {
+            method : "POST",
+            headers : {
+                "content-type" : "Application/json"
+            },
+            body : JSON.stringify(data)
+        })
+        // This the place where the control comes after the frontend form submission
+        if(res.status === 400){
+            alert("Invalid Credentials")
+        }else{
+            const resData =  await res.json()
+            if(resData.token){
+            localStorage.setItem("user:token" , resData.token)
+            localStorage.setItem("iser:details" , JSON.stringify(resData.user))
+            navigate("/")
+          }
+        }
+        
+    }
+
     // console.log(data)
     return(
   <div className="h-screen flex justify-center items-center bg-light">     
@@ -24,7 +49,7 @@ const Form = ({
         <div className="text-4xl font-extrabold ">Welcome {isSignedIn && "Back"}</div>
         <div className="text-xl font-light mb-10">{isSignedIn ? "Sign In" : "Sign Up"}</div>
        
-      <form onSubmit={() => console.log("Hello")} className="flex flex-col items-center w-full">
+      <form onSubmit={(e) => handleSubmit(e)} className="flex flex-col items-center w-full">
 
        { !isSignedIn && <Input lable="Full Name" name="name" placeholder="Enter your full name" className="mb-4 w-[50%]" value={data.fullname} onChange={(e) => setData({...data , fullname : e.target.value}) }/>}
 
