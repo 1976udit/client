@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input"
-import { json, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 const Form = ({
@@ -35,7 +35,7 @@ const Form = ({
             const resData =  await res.json()
             if(resData.token){
             localStorage.setItem("user:token" , resData.token)
-            localStorage.setItem("iser:details" , JSON.stringify(resData.user))
+            localStorage.setItem("user:details" , JSON.stringify(resData.user))
             navigate("/")
           }
         }
