@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState({});
   const [msg , setMsg] = useState('')
+  const [users,setUsers] = useState([])
   // console.log( "I am here!",user)
   // console.log("conversations => ",conversations)
 
@@ -32,6 +33,19 @@ const Dashboard = () => {
     fetchConversation();
   }, []);
 
+  useEffect(()=>{
+      const fetchUsers = async() => {
+        const res = await fetch(`http://localhost:5000/api/users/${user?.id}`,{
+          method : "GET",
+          headers : {
+            "content-type" : "application/json"
+          }
+        })
+        const UserData = await res.json()    
+        setUsers(UserData)
+      }
+      fetchUsers()
+  },[])
 
 
   const fetchMessage = async (conversationId , user) => {
@@ -44,7 +58,7 @@ const Dashboard = () => {
       }
     );
     const resData = await res.json();
-    // console.log(user)
+    console.log(resData)
     setMessages({mes : resData, receiver : user , conversationId});
   };
 
@@ -239,10 +253,49 @@ const Dashboard = () => {
       }
      
 
-
-
        {/* Section 3 */}
-      <div className="w-[25%]  h-screen bg-secondary"></div>
+      <div className="w-[25%]  h-screen bg-secondary flex items-center flex-col">
+         <div className="text-primary text-lg m-3">Peaple</div>
+         <div className="w-full">
+         <div>
+            {!users.length == 0 ? (
+              users.map(({ conversationId, user }) => {
+                return (
+                  <div className="flex items-center py-2 border-b border-b-gray-400">
+                    <div
+                      className="cursor-pointer flex"
+                      onClick={() => fetchMessage("new",user)}
+                    >
+                      <div>
+                        <img
+                          src={Mafia}
+                          className="rounded-full"
+                          alt="_blank"
+                          width={50}
+                          height={50}
+                        />
+                      </div>
+                      <div className="ml-6">
+                        <h3 className="text-lg font-semibold">
+                          {user?.fullname}
+                        </h3>
+                        <p className="text-sm font-light text-gray-500">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center text-lg font-semibold my-10">
+                No Conversations
+              </div>
+            )}
+          </div>
+          </div>
+      </div>
+      
 
       </div>
 )
