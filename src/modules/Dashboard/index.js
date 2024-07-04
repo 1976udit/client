@@ -41,7 +41,7 @@ const Dashboard = () => {
       }
     );
     const resData = await res.json();
-    console.log("message =>", messages);
+    console.log("message =>",messages);
     setMessages({messages : resData, receiver : user});
   };
 
