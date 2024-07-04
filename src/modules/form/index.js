@@ -31,13 +31,12 @@ const Form = ({
         // This the place where the control comes after the frontend form submission
         if(res.status === 400){
             alert("Invalid Credentials")
-        }else{
-            const resData =  await res.json()
-            if(resData.token){
+        }
+        const resData =  await res.json()
+        if(resData.token){
             localStorage.setItem("user:token" , resData.token)
             localStorage.setItem("user:details" , JSON.stringify(resData.user))
             navigate("/")
-          }
         }
         
     }
