@@ -2,7 +2,7 @@
 import Input from "../../components/Input";
 import Mafia from "../../assets/mafia.avif";
 import three from "../../assets/3.webp";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 const Dashboard = () => {
@@ -12,11 +12,10 @@ const Dashboard = () => {
   const [messages, setMessages] = useState({ mes: [], receiver: null, conversationId: null });
   const [message , setMessage] = useState('')
   const [users,setUsers] = useState([])
-  
+  const messageRef = useRef(null)
 
   // socket io
   const socket = io("http://localhost:5000");
-  
 
   useEffect(() => {
     socket?.emit("addUser" , user?.id);
@@ -33,6 +32,10 @@ const Dashboard = () => {
     })
 
   },[socket])
+    
+  useEffect(()=> {
+    messageRef?.current?.scrollIntoView({behavior : 'smooth'})
+  }, [messages.mes])
 
 
   useEffect(() => {
@@ -133,7 +136,7 @@ const Dashboard = () => {
                     <div
                       className="cursor-pointer flex"
                       onClick={() => fetchMessage(conversationId,user)}
-                    >
+                    >  
                       <div>
                         <img
                           src={Mafia}
@@ -207,20 +210,13 @@ const Dashboard = () => {
       <div className="h-[75%] w-full  overflow-y-scroll">
         <div className="h-[1000px] p-10">
           {messages?.mes?.length > 0 ? (
-            messages.mes.map(({ message, user: { id } = {},index }) => {
-              if (id === user?.id) {
-                return (
-                  <div key={index} className="max-w-[40%] bg-primary rounded-b-2xl rounded-tl-2xl ml-auto p-3 text-white mb-6">
-                    {message}
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={index} className="max-w-[40%] bg-secondary rounded-b-2xl rounded-tr-2xl p-3 mb-6">
-                    {message}
-                  </div>
-                );
-              }
+            messages.mes.map(({ mes, user: { id } = {},index }) => {
+             return (
+              <>
+              <div key={index} className={`max-w-[40%] rounded-b-xl p-4 mb-6 ${id === user.id ? "bg-primary text-white rounded-tl-xl ml-auto" : "bg-secondary rounded-tr-xl"}`}>{mes}</div>
+              <div ref={messageRef}></div>
+              </>
+             )
             })
           ) : (
             <div className="text-center text-lg font-semibold mt-14 ">
