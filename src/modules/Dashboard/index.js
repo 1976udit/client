@@ -3,6 +3,7 @@ import Input from "../../components/Input";
 import Mafia from "../../assets/mafia.avif";
 import three from "../../assets/3.webp";
 import { useEffect, useState } from "react";
+import {io} from "socket-io-client"
 
 const Dashboard = () => {
 
@@ -11,8 +12,25 @@ const Dashboard = () => {
   const [messages, setMessages] = useState({});
   const [msg , setMsg] = useState('')
   const [users,setUsers] = useState([])
-  // console.log( "I am here!",user)
-  // console.log("conversations => ",conversations)
+  const [socket , setSocket] = useState(null)   
+
+  useEffect(() => {
+     setSocket(io("http://localhost:3030"))              // send the url of the socket
+  },[])
+
+  useEffect(() => {
+     socket?.emit("addUser",user?.id)
+     socket?.on("getUser", users => {
+      console.log("Active Users : ",users)
+     })
+     socket?.on("getMessage" , data => {
+      console.log("data => ", data )
+      setMessages(prev => ({
+          ...prev,
+          messages : [...prev.messages , {user, message : data.message}]
+      }))
+     })
+  },[socket])
 
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem("user:details"));
@@ -35,6 +53,7 @@ const Dashboard = () => {
 
   useEffect(()=>{
       const fetchUsers = async() => {
+        // console.log(user.id)
         const res = await fetch(`http://localhost:5000/api/users/${user?.id}`,{
           method : "GET",
           headers : {
@@ -48,8 +67,8 @@ const Dashboard = () => {
   },[])
 
 
-  const fetchMessage = async (conversationId , user) => {
-    const res = await fetch(`http://localhost:5000/api/message/${conversationId}`,
+  const fetchMessage = async (conversationId , receiver) => {
+    const res = await fetch(`http://localhost:5000/api/message/${conversationId}?senderId=${user?.id}&&reeceiverId=${receiver?.receiverId}`,
       {
         method: "GET",
         headers: {
@@ -59,10 +78,18 @@ const Dashboard = () => {
     );
     const resData = await res.json();
     console.log(resData)
-    setMessages({mes : resData, receiver : user , conversationId});
+    setMessages({mes : resData, receiver , conversationId});
   };
 
   const sendMessage = async(e) => {
+    
+    socket.emit("sendMessage" , {
+      senderId : user?.id,
+      receiverId : messages?.receiver?.receiverId,
+      msg,
+      conversationId : messages?.conversationId
+    })
+
     const res = await fetch(`http://localhost:5000/api/message` , {
       method : "POST",
       headers : {
@@ -99,7 +126,7 @@ const Dashboard = () => {
             {!conversations.length == 0 ? (
               conversations.map(({ conversationId, user }) => {
                 return (
-                  <div className="flex items-center py-2 border-b border-b-gray-400">
+                  <div className="flex items-center py-2 border-b border-b-gray-400">   
                     <div
                       className="cursor-pointer flex"
                       onClick={() => fetchMessage(conversationId,user)}
