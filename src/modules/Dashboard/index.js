@@ -3,34 +3,37 @@ import Input from "../../components/Input";
 import Mafia from "../../assets/mafia.avif";
 import three from "../../assets/3.webp";
 import { useEffect, useState } from "react";
-import {io} from "socket-io-client"
+import { io } from "socket.io-client";
 
 const Dashboard = () => {
 
   const [user, setUser] = useState(JSON.parse(localStorage.getItem("user:details")));
   const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState({});
-  const [msg , setMsg] = useState('')
+  const [messages, setMessages] = useState({ mes: [], receiver: null, conversationId: null });
+  const [message , setMessage] = useState('')
   const [users,setUsers] = useState([])
-  const [socket , setSocket] = useState(null)   
+  
+
+  // socket io
+  const socket = io("http://localhost:5000");
+  
 
   useEffect(() => {
-     setSocket(io("http://localhost:3030"))              // send the url of the socket
-  },[])
-
-  useEffect(() => {
-     socket?.emit("addUser",user?.id)
-     socket?.on("getUser", users => {
+    socket?.emit("addUser" , user?.id);
+    socket?.on('getUsers', users => {
       console.log("Active Users : ",users)
-     })
-     socket?.on("getMessage" , data => {
-      console.log("data => ", data )
+    })
+   
+    socket.on("getMessage" , data => {
+      console.log("Data => " , data)
       setMessages(prev => ({
-          ...prev,
-          messages : [...prev.messages , {user, message : data.message}]
+       ...prev,
+       mes : [...prev.mes , {user : data.user , mes : data.message}]
       }))
-     })
+    })
+
   },[socket])
+
 
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem("user:details"));
@@ -49,7 +52,7 @@ const Dashboard = () => {
       // console.log(typeof conversations);
     };
     fetchConversation();
-  }, []);
+  },[]);
 
   useEffect(()=>{
       const fetchUsers = async() => {
@@ -68,7 +71,7 @@ const Dashboard = () => {
 
 
   const fetchMessage = async (conversationId , receiver) => {
-    const res = await fetch(`http://localhost:5000/api/message/${conversationId}?senderId=${user?.id}&&reeceiverId=${receiver?.receiverId}`,
+    const res = await fetch(`http://localhost:5000/api/message/${conversationId}?senderId=${user?.id}&&receiverId=${receiver?.receiverId}`,
       {
         method: "GET",
         headers: {
@@ -82,12 +85,12 @@ const Dashboard = () => {
   };
 
   const sendMessage = async(e) => {
-    
-    socket.emit("sendMessage" , {
+
+    socket?.emit("sendMessage", {
       senderId : user?.id,
       receiverId : messages?.receiver?.receiverId,
-      msg,
-      conversationId : messages?.conversationId
+      message,
+      conversationId : messages?.conversationId,
     })
 
     const res = await fetch(`http://localhost:5000/api/message` , {
@@ -98,11 +101,11 @@ const Dashboard = () => {
       body : JSON.stringify({
         conversationId : messages?.conversationId,
         senderId : user.id,
-        message : msg,
+        message,
         receiverId : messages?.receiver?.receiverId
       })
     })
-    setMsg("")
+    setMessage("")
   }
 
   return (
@@ -126,7 +129,7 @@ const Dashboard = () => {
             {!conversations.length == 0 ? (
               conversations.map(({ conversationId, user }) => {
                 return (
-                  <div className="flex items-center py-2 border-b border-b-gray-400">   
+                  <div key={conversationId} className="flex items-center py-2 border-b border-b-gray-400">   
                     <div
                       className="cursor-pointer flex"
                       onClick={() => fetchMessage(conversationId,user)}
@@ -204,16 +207,16 @@ const Dashboard = () => {
       <div className="h-[75%] w-full  overflow-y-scroll">
         <div className="h-[1000px] p-10">
           {messages?.mes?.length > 0 ? (
-            messages.mes.map(({ message, user: { id } = {} }) => {
+            messages.mes.map(({ message, user: { id } = {},index }) => {
               if (id === user?.id) {
                 return (
-                  <div className="max-w-[40%] bg-primary rounded-b-2xl rounded-tl-2xl ml-auto p-3 text-white mb-6">
+                  <div key={index} className="max-w-[40%] bg-primary rounded-b-2xl rounded-tl-2xl ml-auto p-3 text-white mb-6">
                     {message}
                   </div>
                 );
               } else {
                 return (
-                  <div className="max-w-[40%] bg-secondary rounded-b-2xl rounded-tr-2xl p-3 mb-6">
+                  <div key={index} className="max-w-[40%] bg-secondary rounded-b-2xl rounded-tr-2xl p-3 mb-6">
                     {message}
                   </div>
                 );
@@ -230,13 +233,13 @@ const Dashboard = () => {
       <div className="p-8 w-full flex items-center">
         <Input
           placeholder="type a message..."
-          value={msg}
-          onChange={(e) => setMsg(e.target.value) }
+          value={message}
+          onChange={(e) => setMessage(e.target.value) }
           className="w-full mr-2"
           inputClassName="p-3  border-0 shadow-md rounded-full bg-light outline-none focus:ring-0"
         />
         <div className={`"m-2 mt-2 p-2 cursor-pointer
-           rounded-full bg-secondary ${!msg && 'pointer-events-none'}"`} onClick={() => sendMessage() }>
+           rounded-full bg-secondary ${!message && 'pointer-events-none'}"`} onClick={() => sendMessage() }>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="icon icon-tabler icon-tabler-send"
@@ -255,7 +258,7 @@ const Dashboard = () => {
           </svg>
         </div>
         <div className={`"ml-3 mt-2 p-2 cursor-pointer
-           rounded-full bg-secondary ${!msg && 'pointer-events-none'}"`}>
+           rounded-full bg-secondary ${!message && 'pointer-events-none'}"`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="icon icon-tabler icon-tabler-circle-plus"
@@ -282,7 +285,7 @@ const Dashboard = () => {
 
        {/* Section 3 */}
       <div className="w-[25%]  h-screen bg-secondary flex items-center flex-col">
-         <div className="text-primary text-lg m-3">Peaple</div>
+         <div className="text-primary text-lg m-5">Peaple</div>
          <div className="w-full">
          <div>
             {!users.length == 0 ? (
@@ -290,7 +293,7 @@ const Dashboard = () => {
                 return (
                   <div className="flex items-center py-2 border-b border-b-gray-400">
                     <div
-                      className="cursor-pointer flex"
+                      className="cursor-pointer flex m-2"
                       onClick={() => fetchMessage("new",user)}
                     >
                       <div>
@@ -323,7 +326,6 @@ const Dashboard = () => {
           </div>
       </div>
       
-
       </div>
 )
 }
