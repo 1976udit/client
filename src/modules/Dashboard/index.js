@@ -210,13 +210,21 @@ const Dashboard = () => {
       <div className="h-[75%] w-full  overflow-y-scroll">
         <div className="h-[1000px] p-10">
           {messages?.mes?.length > 0 ? (
-            messages.mes.map(({ mes, user: { id } = {},index }) => {
+            messages.mes.map(({ message, user: { id } = {},index }) => {
              return (
-              <>
-              <div key={index} className={`max-w-[40%] rounded-b-xl p-4 mb-6 ${id === user.id ? "bg-primary text-white rounded-tl-xl ml-auto" : "bg-secondary rounded-tr-xl"}`}>{mes}</div>
-              <div ref={messageRef}></div>
-              </>
-             )
+               <div key={index}>
+                 <div
+                   className={`max-w-[40%] rounded-b-xl p-4 mb-6 ${
+                     id === user.id
+                       ? "bg-primary text-white rounded-tl-xl ml-auto"
+                       : "bg-secondary rounded-tr-xl"
+                   }`}
+                 >
+                   {message}
+                 </div>
+                 <div ref={messageRef}></div>
+               </div>
+             );
             })
           ) : (
             <div className="text-center text-lg font-semibold mt-14 ">
